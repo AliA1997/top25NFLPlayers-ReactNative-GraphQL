@@ -1,0 +1,3 @@
+rootProject.name = 'top25Players'
+
+include ':app'
