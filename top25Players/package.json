@@ -7,8 +7,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "apollo-client-preset": "^1.0.8",
+    "graphql": "^14.0.2",
+    "graphql-tag": "^2.9.2",
     "react": "16.5.0",
-    "react-native": "0.57.0"
+    "react-apollo": "^2.1.11",
+    "react-native": "0.57.0",
+    "react-navigation": "^2.17.0"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",

@@ -1,49 +1,28 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+//import your ApolloProvider from react-apollo to wrap your app.
+import { ApolloProvider} from 'react-apollo'; 
+//import ApolloClient, InMemoryCache, and HttpLink to define your client to cnnect to your graphql server.//#endregion
+import { ApolloClient, InMemoryCache, HttpLink } from 'apollo-client-preset';
+//import your Navigator so your application renders the initial route
+import Navigator from './Navigator';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+//Define your client for your APolloProvider connecting to your graphql server.
+const client = new ApolloClient({
+  //Assign to your cache property a instance of a InMemoryCache
+  cache: new InMemoryCache(),
+  //Assign your link with a new instance of a HttpLink linking to your graphql server.
+  link: new HttpLink({uri: 'http://localhost:4000/graphql'})
+})
+
 
 type Props = {};
 export default class App extends Component<Props> {
   render() {
+    //Wrap your App with apolloProvider with your defined client.
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-      </View>
+      <ApolloProvider client={client}>
+        <Navigator />
+      </ApolloProvider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
