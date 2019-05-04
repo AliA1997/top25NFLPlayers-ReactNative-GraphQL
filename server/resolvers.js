@@ -9,6 +9,14 @@ const resolvers = {
             console.log('players-------', players);
             //Else return your players.
             return players;
+        }),
+        //You can also use args on getting individual players. 
+        //Have the callback asynchronous to return the player when it contains data.
+        getPlayer: (_, args) => Player.findById({_id: args.id}, async (error, playerToReturn) => {
+            //If there is an error throw an error on your graphql playground.
+            if(error) throw new Error(error);
+            //Else return the player based on it's id.
+            return await playerToReturn;
         })
     },
     Mutation: {
@@ -27,6 +35,32 @@ const resolvers = {
             newlyCreatedPlayer.save();
             //Now return the player your just created.
             return newlyCreatedPlayer;
+        },
+        updatePlayer: (_, args) => {
+            //Pass the arguments of the mutation to the findByIdAndUpdate method on your model
+            //Then use the $set to set the specific fields based on the arguments of the mutation
+            //Update the player based on it's id.
+            //Make the callback asynchronous so you can return playerUpdated before return out of the function.
+            return Player.findByIdAndUpdate({_id: args.id}, {$set: args}, async (error, playerUpdated) => {
+                if (error) {
+                    throw new Error(error);
+                }
+                //Return the updated player.
+                return await playerUpdated;
+            });
+        },
+        deletePlayer: (_, args) => {
+            //Pass the args id to the findByIdANdDelete method then you 
+            //and perform an empty return since we will navigate to the player's list on the front end..
+            return Player.findByIdAndDelete({_id: args.id}, (error, playerDeleted) => {
+                if(error) {
+                    throw new Error(error);
+                    
+                }
+                //Return out the function.
+                return;
+            });
+
         }
     }
 }

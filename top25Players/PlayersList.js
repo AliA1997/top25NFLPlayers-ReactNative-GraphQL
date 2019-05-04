@@ -2,6 +2,8 @@
 import React, { PureComponent } from 'react';
 //import your UI from react-native
 import { TouchableOpacity, ScrollView, Text, StyleSheet, Platform, FlatList } from 'react-native';
+//import withNavigation to for updating the player's list when the graphql server is updated.
+import { withNavigationFocus } from 'react-navigation';
 //Import the Query component from react apollo that will responsible for retrieving data from your graphql server.
 import { Query } from 'react-apollo';
 //import gql from graphql-tag for making queries to our graphql server.
@@ -9,9 +11,11 @@ import gql from 'graphql-tag';
 
 //Define your query variable which is the query responsible for retrieving data.
 //It will query the each player's position, name, team, jersyNumber, and wonSuperBowl from the query's players field.
+//Now alter the query to get the id to be used to retrieve a specific player.
 const query = gql`
         query {
              players {
+                id
                 position
                 name
                 team
@@ -27,13 +31,25 @@ class PlayersList extends PureComponent {
     // which will add special characteristics to your label for this component.
     static navigationOptions = {
         drawerLabel: 'Players List',
+        headerText: "Player's List"
     }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.isFocused !== this.props.isFocused) {
+          // Use the `this.props.isFocused` boolean
+          this.forceUpdate();
+          // Call any action
+        }
+      }
+
+
     //Define your method for rendering each individual item
     _renderItem({item}) {
         //Return the UI
         //It will return the text green or red depending if that player won a super bowl or not.
+        //Now we will edit the item to redirect the user to the Player component with thier id as an argument.
         return (
-            <TouchableOpacity style={styles.itemContainer}>
+            <TouchableOpacity style={styles.itemContainer} key={item.id} onPress={() => this.props.navigation.navigate('Player', {id: item.id})}>
                 <Text style={styles.itemText}>Position: {item.position}</Text>
                 <Text style={styles.itemText}>Name: {item.name}</Text>
                 <Text style={styles.itemText}>Team: {item.team}</Text>
@@ -44,6 +60,7 @@ class PlayersList extends PureComponent {
             </TouchableOpacity>
         );
     }
+
     render() {
         //render your ui with the styles set for each ui element.
         return (
@@ -52,7 +69,10 @@ class PlayersList extends PureComponent {
                 <Text style={[styles.itemText, styles.headerText]}>Top 25 NFL Players List</Text>
                 {/* Enable Open Drawer functionality */}
                 <Text style={styles.openDrawerText} onPress={() => this.props.navigation.openDrawer()}>Open Drawer</Text>
-                <Query query={query}>
+
+                {/*Pass a fetchPOlicy of network and cache that means you will always make a api call, and update your cache with the updated data, 
+                    but you will never return data from cache unless it is hte same exact data found in api call. */}
+                <Query query={query} fetchPolicy="cache-and-network">
                     {/* The props.children of the Query will be a callback with a response, and error parameter. */}
                     {(response, error) => {
                         if(error) {
@@ -61,7 +81,6 @@ class PlayersList extends PureComponent {
                         }
                         //If the response is done, then will return the FlatList
                         if(response) {
-                            console.log('response-data-------------', response);
                             //Return the FlatList if there is not an error.
                             return <FlatList 
                                         data={response.data.players}
